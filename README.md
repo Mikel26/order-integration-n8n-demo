@@ -12,7 +12,7 @@ Demo de portafolio de **Mikel Ortega**, Ingeniero en Sistemas y Fullstack Senior
 - Recuperación si el ERP confirma un pedido pero se pierde su respuesta.
 - Sesiones anónimas con stock privado, polling y estados persistidos.
 
-**Estado:** MVP local implementado. La demo aún no tiene una URL pública ni un repositorio remoto configurado. No se atribuyen clientes, uso productivo o métricas comerciales. El pipeline de GitHub Actions queda preparado; su ejecución remota se podrá comprobar después de subir el repositorio.
+**Estado:** MVP local implementado y código publicado en [GitHub](https://github.com/Mikel26/order-integration-n8n-demo). La live demo aún no tiene una URL pública. No se atribuyen clientes, uso productivo o métricas comerciales. Consulta las ejecuciones y resultados del pipeline en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml).
 
 [Video de demostración](docs/demo.webm) · [Captura móvil](docs/screenshots/demo-mobile.png) · [Arquitectura](docs/architecture.md) · [Workflows](docs/workflow.md) · [Especificación original](docs/ESPECIFICACION.md)
 

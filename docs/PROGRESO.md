@@ -10,6 +10,6 @@
 
 Cada fase corresponde a un commit independiente. La quinta incorpora también separación de secretos por servicio, formato consistente y pruebas adicionales de rollback y cuotas.
 
-El MVP corre localmente; la creación del remoto GitHub y la live demo pública siguen pendientes. El pipeline de CI está preparado y sus pasos equivalentes se ejecutaron localmente; aún no existe una ejecución remota para mostrar como evidencia.
+El MVP corre localmente y el código está en [https://github.com/Mikel26/order-integration-n8n-demo](https://github.com/Mikel26/order-integration-n8n-demo), con el historial de fases conservado. La live demo pública sigue pendiente. Los pasos equivalentes del pipeline se verificaron localmente; las ejecuciones remotas se consultan en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml).
 
 Los diagramas de workflows documentan los JSON importables. Una captura adicional del canvas n8n requiere configurar su propietario local; no se presenta el diagrama como captura del editor. La licencia del repositorio queda pendiente de elección.

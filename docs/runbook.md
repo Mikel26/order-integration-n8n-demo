@@ -58,4 +58,4 @@ Los tests en vivo crean sesiones y consumen estas cuotas. En un entorno desechab
 
 `npm run format:check`, `npm run typecheck`, pruebas y `git diff --check`. Revisar que `.env`, cookies, credenciales exportadas e historial de ejecuciones no estén versionados. `npm run check:secrets` verifica que los secretos locales generados no estén en archivos preparados para Git.
 
-El repositorio no tiene remoto configurado. Revisar identidad de Git y autenticación de GitHub antes de crear/subir el remoto. Elegir también la licencia que se quiere otorgar; no se ha añadido una licencia sin esa decisión.
+El remoto `origin` apunta a `https://github.com/Mikel26/order-integration-n8n-demo.git`. Revisar la identidad de Git y utilizar la cuenta `Mikel26` al subir cambios. Elegir también la licencia que se quiere otorgar; no se ha añadido una licencia sin esa decisión.

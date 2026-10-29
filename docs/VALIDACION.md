@@ -39,4 +39,4 @@ Imágenes de referencia: Node `24.12.0-alpine`, PostgreSQL `17.6-alpine`, n8n `2
 
 ## Límites de esta evidencia
 
-No hay ensayo de alta disponibilidad, carga de producción ni SLA medido. La auditoría npm no evalúa el sistema operativo de las imágenes. La autenticación del editor n8n no forma parte de los recorridos automatizados; el editor está ligado a localhost. No se ha publicado la demo ni ejecutado GitHub Actions en un remoto. No se afirma experiencia productiva con un ERP comercial.
+No hay ensayo de alta disponibilidad, carga de producción ni SLA medido. La auditoría npm no evalúa el sistema operativo de las imágenes. La autenticación del editor n8n no forma parte de los recorridos automatizados; el editor está ligado a localhost. Esta evidencia corresponde a la validación local anterior a la publicación del código. La live demo pública sigue pendiente; las ejecuciones remotas posteriores pueden consultarse en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml). No se afirma experiencia productiva con un ERP comercial.
