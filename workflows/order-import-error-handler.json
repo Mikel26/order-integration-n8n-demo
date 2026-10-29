@@ -1,0 +1,171 @@
+{
+  "id": "orderImportErrors",
+  "name": "Order Import · Error Handler",
+  "active": false,
+  "nodes": [
+    {
+      "id": "77d5d216-8931-578f-89ca-c2c7f87e7840",
+      "name": "Error de integración",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "5f575b5e-dddf-54f3-8cac-b0c1838e28e1",
+      "name": "Resolver operación",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=http://ingress-api:3001/internal/operations/by-execution/{{ $json.execution?.id || 'unknown' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-internal-header",
+          "name": "Demo Internal API"
+        }
+      }
+    },
+    {
+      "id": "eaa491eb-87b1-5079-9d37-70d1e4466248",
+      "name": "Operación identificada",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2dc93381-1a43-49e9-89be-6b3c1d4cedfc",
+              "leftValue": "={{ $json.statusCode === 200 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bfddaff0-f872-5fa3-8512-50727f64892d",
+      "name": "Solicitar recuperación",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://ingress-api:3001/internal/operations/{{ $json.body.operationId }}/report-failure",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { attemptToken: $json.body.attemptToken, code: 'N8N_EXECUTION_ERROR', retryable: true } }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-internal-header",
+          "name": "Demo Internal API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error de integración": {
+      "main": [
+        [
+          {
+            "node": "Resolver operación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolver operación": {
+      "main": [
+        [
+          {
+            "node": "Operación identificada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operación identificada": {
+      "main": [
+        [
+          {
+            "node": "Solicitar recuperación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "pinData": {},
+  "versionId": "20ee910d-fcc2-4e51-899d-956d0180e8c9"
+}

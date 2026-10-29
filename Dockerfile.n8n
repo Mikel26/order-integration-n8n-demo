@@ -1,0 +1,3 @@
+FROM n8nio/n8n:2.45.6
+COPY workflows /opt/demo/workflows
+COPY scripts/bootstrap-n8n.mjs /opt/demo/bootstrap-n8n.mjs

@@ -1,0 +1,397 @@
+{
+  "id": "orderImportMain",
+  "name": "Order Import · Portfolio",
+  "active": false,
+  "nodes": [
+    {
+      "id": "f5c31ae1-4cdb-50f9-97c3-6a82cf193c05",
+      "name": "Pedido recibido",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-import",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "responseCode": 202,
+        "options": {}
+      },
+      "webhookId": "order-import",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-webhook-header",
+          "name": "Demo Webhook"
+        }
+      }
+    },
+    {
+      "id": "5c73912e-84da-5c44-afed-5a8734996d31",
+      "name": "Reclamar operación",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://ingress-api:3001/internal/operations/{{ $json.body.operationId }}/claim",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { attemptToken: $json.body.attemptToken, executionId: $execution.id } }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-internal-header",
+          "name": "Demo Internal API"
+        }
+      }
+    },
+    {
+      "id": "16c95fa1-c50c-5d23-b963-fe3b7aec7d99",
+      "name": "Mapear contrato ERP",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { schemaVersion: 1, operationId: $json.operationId, attemptToken: $json.attemptToken, externalOrderId: $json.clientOrderId, source: 'PORTFOLIO_WEB', lines: $json.items.map(i => ({ productCode: i.sku, units: i.quantity })) } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "90bd06d4-f2a3-5578-82b4-bc98e691eb8f",
+      "name": "Registrar en ERP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://mock-erp:3002/internal/erp/order-imports",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-erp-header",
+          "name": "Demo ERP API"
+        }
+      }
+    },
+    {
+      "id": "98a8c835-7892-5c89-be9f-505aa856e119",
+      "name": "Respuesta ERP válida",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "25934278-0b79-4ad6-aeb7-0193159dad03",
+              "leftValue": "={{ $json.statusCode >= 200 && $json.statusCode < 300 && ['SUCCEEDED','REJECTED','DUPLICATE'].includes($json.body.outcome) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "9265986b-e5b3-53c5-8f49-842a98be6a3b",
+      "name": "Pedido creado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        -160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "272548d8-7a9a-44e3-b65c-12b9f4e6f096",
+              "leftValue": "={{ $json.body.outcome === 'SUCCEEDED' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d5775e14-1203-5e74-8fac-1b4d2daf10ca",
+      "name": "Pedido duplicado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90f2ae79-9711-4558-b974-2505ea0690f4",
+              "leftValue": "={{ $json.body.outcome === 'DUPLICATE' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b93171a0-dd04-5585-8bf6-a36d25b321e0",
+      "name": "Publicar resultado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        -160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://ingress-api:3001/internal/operations/{{ $('Reclamar operación').first().json.operationId }}/finalize",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { attemptToken: $('Reclamar operación').first().json.attemptToken, receiptId: $('Registrar en ERP').first().json.body.receiptId } }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-internal-header",
+          "name": "Demo Internal API"
+        }
+      }
+    },
+    {
+      "id": "74c51fa6-fdc3-50d2-8ee4-f0eb6caba46e",
+      "name": "Clasificar fallo técnico",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://ingress-api:3001/internal/operations/{{ $('Reclamar operación').first().json.operationId }}/report-failure",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { attemptToken: $('Reclamar operación').first().json.attemptToken, code: 'ERP_HTTP_ERROR', retryable: $json.statusCode === 429 || $json.statusCode >= 500, executionId: $execution.id } }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "demo-internal-header",
+          "name": "Demo Internal API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Pedido recibido": {
+      "main": [
+        [
+          {
+            "node": "Reclamar operación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reclamar operación": {
+      "main": [
+        [
+          {
+            "node": "Mapear contrato ERP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapear contrato ERP": {
+      "main": [
+        [
+          {
+            "node": "Registrar en ERP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar en ERP": {
+      "main": [
+        [
+          {
+            "node": "Respuesta ERP válida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta ERP válida": {
+      "main": [
+        [
+          {
+            "node": "Pedido creado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clasificar fallo técnico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido creado": {
+      "main": [
+        [
+          {
+            "node": "Publicar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pedido duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido duplicado": {
+      "main": [
+        [
+          {
+            "node": "Publicar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Publicar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "orderImportErrors",
+    "executionTimeout": 20,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "pinData": {},
+  "versionId": "18162f5b-461e-4a24-97ce-758711d3569d"
+}
