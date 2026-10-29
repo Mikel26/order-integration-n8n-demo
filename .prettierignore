@@ -1,0 +1,10 @@
+node_modules
+dist
+.angular
+package-lock.json
+docs/ESPECIFICACION.md
+docs/screenshots
+docs/demo.webm
+test-results
+playwright-report
+.env

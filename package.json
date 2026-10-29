@@ -19,7 +19,13 @@
     "test:integration": "vitest run tests/integration --no-file-parallelism",
     "test:e2e": "playwright test",
     "db:migrate": "tsx --env-file=.env scripts/migrate.ts",
-    "setup:env": "node scripts/setup-env.mjs"
+    "setup:env": "node scripts/setup-env.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:smoke": "node scripts/smoke-live.mjs",
+    "test:recovery": "node scripts/test-recovery.mjs",
+    "record:demo": "node scripts/record-demo.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@angular/common": "21.2.25",
@@ -40,6 +46,7 @@
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
+    "prettier": "3.6.2",
     "tsx": "^4.20.6",
     "typescript": "~5.9.3",
     "vitest": "^4.0.0"

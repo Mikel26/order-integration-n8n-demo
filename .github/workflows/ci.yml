@@ -1,0 +1,42 @@
+name: Verify demo
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: order-demo-ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run setup:env
+      - run: npm run check:secrets
+      - run: npm run format:check
+      - run: npm run typecheck && npm test
+      - run: docker compose up -d --build --wait
+      - run: npm run test:integration
+      - run: npm run test:smoke
+      - run: npm run test:recovery
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        run: docker compose logs --tail 60
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-evidence
+          path: |
+            test-results/
+            docs/screenshots/
+          retention-days: 7
+      - if: always()
+        run: docker compose down -v

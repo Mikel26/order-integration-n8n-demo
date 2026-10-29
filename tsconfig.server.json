@@ -8,9 +8,7 @@
     "skipLibCheck": true,
     "rootDir": ".",
     "outDir": "dist/server",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "noUncheckedIndexedAccess": true
   },
   "include": [
@@ -20,7 +18,5 @@
     "scripts/**/*.ts",
     "tests/**/*.ts"
   ],
-  "exclude": [
-    "tests/e2e"
-  ]
+  "exclude": ["tests/e2e"]
 }

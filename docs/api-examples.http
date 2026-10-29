@@ -1,0 +1,40 @@
+### Crear sesión. Ejecutar desde un cliente que conserve cookies.
+POST http://localhost:3000/api/demo-sessions
+Origin: http://localhost:4200
+
+### Pedido válido (usar una sesión nueva)
+POST http://localhost:3000/api/orders
+Origin: http://localhost:4200
+Content-Type: application/json
+Idempotency-Key: 22222222-2222-4222-8222-222222222222
+
+{"clientOrderId":"WEB-1001","items":[{"sku":"DEMO-001","quantity":2},{"sku":"DEMO-002","quantity":1}]}
+
+### Seguimiento: reemplazar por el operationId de la respuesta
+GET http://localhost:3000/api/operations/{{operationId}}
+
+### Stock insuficiente
+POST http://localhost:3000/api/orders
+Origin: http://localhost:4200
+Content-Type: application/json
+Idempotency-Key: 77777777-7777-4777-8777-777777777777
+
+{"clientOrderId":"WEB-1002","items":[{"sku":"DEMO-003","quantity":3}]}
+
+### Duplicado de negocio: mismo pedido y contenido, nueva clave
+POST http://localhost:3000/api/orders
+Origin: http://localhost:4200
+Content-Type: application/json
+Idempotency-Key: 99999999-9999-4999-8999-999999999999
+
+{"clientOrderId":"WEB-1001","items":[{"sku":"DEMO-001","quantity":2},{"sku":"DEMO-002","quantity":1}]}
+
+### Stock privado de la sesión
+GET http://localhost:3000/api/stock
+
+### Pedidos confirmados, con cursor opcional
+GET http://localhost:3000/api/orders?limit=20
+
+### Reinicio: nueva sesión e inventario
+POST http://localhost:3000/api/demo-sessions/reset
+Origin: http://localhost:4200

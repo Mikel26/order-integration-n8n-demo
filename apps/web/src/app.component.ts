@@ -182,8 +182,15 @@ export class AppComponent implements OnDestroy {
       sessionStorage.removeItem(`pending:${this.session()!.sessionId}`);
       await this.poll(accepted.operationId, Date.now(), ++this.epoch);
     } catch (e) {
+      const definitive =
+        e instanceof HttpErrorResponse && [400, 401, 403, 409, 410, 422].includes(e.status);
+      if (definitive) {
+        this.pending.set(null);
+        sessionStorage.removeItem(`pending:${this.session()!.sessionId}`);
+      }
       this.error.set(
-        this.message(e) + ' Conservamos la solicitud para reenviarla con la misma clave.',
+        this.message(e) +
+          (definitive ? '' : ' Conservamos la solicitud para reenviarla con la misma clave.'),
       );
     } finally {
       this.sending.set(false);
@@ -255,7 +262,14 @@ export class AppComponent implements OnDestroy {
       case 'ORDER_CREATED':
         return 'El ERP confirmó el pedido y actualizó el stock.';
       case 'INSUFFICIENT_STOCK':
-        return 'No hay existencias suficientes. Ningún producto fue descontado.';
+        const detail = op.result.details[0] as
+          | { requested?: number; available?: number }
+          | undefined;
+        return detail &&
+          typeof detail.requested === 'number' &&
+          typeof detail.available === 'number'
+          ? `Stock insuficiente: solicitaste ${detail.requested}, disponibles ${detail.available}. Ningún producto fue descontado.`
+          : 'No hay existencias suficientes. Ningún producto fue descontado.';
       case 'ORDER_ALREADY_PROCESSED':
         return 'El pedido ya estaba resuelto. No se descontó stock otra vez.';
       case 'ORDER_ID_CONFLICT':

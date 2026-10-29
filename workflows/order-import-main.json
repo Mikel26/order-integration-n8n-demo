@@ -8,10 +8,7 @@
       "name": "Pedido recibido",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [
-        0,
-        0
-      ],
+      "position": [0, 0],
       "parameters": {
         "httpMethod": "POST",
         "path": "order-import",
@@ -33,10 +30,7 @@
       "name": "Reclamar operación",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        240,
-        0
-      ],
+      "position": [240, 0],
       "parameters": {
         "method": "POST",
         "url": "=http://ingress-api:3001/internal/operations/{{ $json.body.operationId }}/claim",
@@ -66,10 +60,7 @@
       "name": "Mapear contrato ERP",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [
-        480,
-        0
-      ],
+      "position": [480, 0],
       "parameters": {
         "mode": "raw",
         "jsonOutput": "={{ { schemaVersion: 1, operationId: $json.operationId, attemptToken: $json.attemptToken, externalOrderId: $json.clientOrderId, source: 'PORTFOLIO_WEB', lines: $json.items.map(i => ({ productCode: i.sku, units: i.quantity })) } }}",
@@ -81,10 +72,7 @@
       "name": "Registrar en ERP",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        720,
-        0
-      ],
+      "position": [720, 0],
       "parameters": {
         "method": "POST",
         "url": "http://mock-erp:3002/internal/erp/order-imports",
@@ -121,10 +109,7 @@
       "name": "Respuesta ERP válida",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        960,
-        0
-      ],
+      "position": [960, 0],
       "parameters": {
         "conditions": {
           "options": {
@@ -155,10 +140,7 @@
       "name": "Pedido creado",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        1200,
-        -160
-      ],
+      "position": [1200, -160],
       "parameters": {
         "conditions": {
           "options": {
@@ -189,10 +171,7 @@
       "name": "Pedido duplicado",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        1440,
-        0
-      ],
+      "position": [1440, 0],
       "parameters": {
         "conditions": {
           "options": {
@@ -223,10 +202,7 @@
       "name": "Publicar resultado",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1680,
-        -160
-      ],
+      "position": [1680, -160],
       "parameters": {
         "method": "POST",
         "url": "=http://ingress-api:3001/internal/operations/{{ $('Reclamar operación').first().json.operationId }}/finalize",
@@ -256,10 +232,7 @@
       "name": "Clasificar fallo técnico",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1200,
-        220
-      ],
+      "position": [1200, 220],
       "parameters": {
         "method": "POST",
         "url": "=http://ingress-api:3001/internal/operations/{{ $('Reclamar operación').first().json.operationId }}/report-failure",

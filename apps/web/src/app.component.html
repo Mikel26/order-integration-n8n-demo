@@ -21,7 +21,9 @@
         ><strong>{{
           session() ? 'Sesión ' + session()!.sessionId.slice(0, 8) : 'Conectando…'
         }}</strong
-        ><span>Datos ficticios · stock solo para ti</span
+        ><span
+          >Datos ficticios · stock solo para ti · Caduca
+          {{ session()?.expiresAt | date: 'HH:mm' }}</span
         ><button class="text-button" (click)="reset()" [disabled]="busy()">Reiniciar demo ↻</button>
       </div>
     </section>

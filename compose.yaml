@@ -6,63 +6,79 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup:env}
       DEMO_DB_PASSWORD: ${DEMO_DB_PASSWORD:?Run npm run setup:env}
       N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?Run npm run setup:env}
-    ports: ["127.0.0.1:5433:5432"]
+    ports: ['127.0.0.1:5433:5432']
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 3s
       timeout: 3s
       retries: 20
   migrate:
-    build: {context: ., target: server}
-    environment: &app-env
+    build: { context: ., target: server }
+    environment: &db-env
       DATABASE_URL: postgres://demo:${DEMO_DB_PASSWORD}@postgres:5432/orders_demo
-      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:4200}
-      INTERNAL_SECRET: ${INTERNAL_SECRET:?Run npm run setup:env}
-      ERP_SECRET: ${ERP_SECRET:?Run npm run setup:env}
-      WEBHOOK_SECRET: ${WEBHOOK_SECRET:?Run npm run setup:env}
-      N8N_WEBHOOK_URL: http://n8n:5678/webhook/order-import
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
-    command: ["node", "dist/server/scripts/migrate.js"]
+    command: ['node', 'dist/server/scripts/migrate.js']
     depends_on:
-      postgres: {condition: service_healthy}
+      postgres: { condition: service_healthy }
   ingress-api:
     restart: unless-stopped
-    build: {context: ., target: server}
-    environment: *app-env
-    ports: ["127.0.0.1:3000:3000"]
+    build: { context: ., target: server }
+    environment:
+      <<: *db-env
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:4200}
+      INTERNAL_SECRET: ${INTERNAL_SECRET:?Run npm run setup:env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUSTED_PROXY_CIDR: ${TRUSTED_PROXY_CIDR:-}
+    ports: ['127.0.0.1:3000:3000']
     depends_on:
-      migrate: {condition: service_completed_successfully}
+      migrate: { condition: service_completed_successfully }
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
   mock-erp:
     restart: unless-stopped
-    build: {context: ., target: server}
-    environment: *app-env
-    command: ["node", "dist/server/apps/mock-erp/src/main.js"]
+    build: { context: ., target: server }
+    environment:
+      <<: *db-env
+      ERP_SECRET: ${ERP_SECRET:?Run npm run setup:env}
+    command: ['node', 'dist/server/apps/mock-erp/src/main.js']
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3002/health',{headers:{'x-erp-secret':process.env.ERP_SECRET}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3002/health',{headers:{'x-erp-secret':process.env.ERP_SECRET}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
     depends_on:
-      migrate: {condition: service_completed_successfully}
+      migrate: { condition: service_completed_successfully }
   dispatcher:
     restart: unless-stopped
-    build: {context: ., target: server}
-    environment: *app-env
-    command: ["node", "dist/server/apps/ingress-api/src/worker-main.js"]
+    build: { context: ., target: server }
+    environment:
+      <<: *db-env
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:?Run npm run setup:env}
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/order-import
+    command: ['node', 'dist/server/apps/ingress-api/src/worker-main.js']
     depends_on:
-      ingress-api: {condition: service_healthy}
-      n8n: {condition: service_healthy}
-      mock-erp: {condition: service_healthy}
+      ingress-api: { condition: service_healthy }
+      n8n: { condition: service_healthy }
+      mock-erp: { condition: service_healthy }
   n8n-init:
-    build: {context: ., dockerfile: Dockerfile.n8n}
-    entrypoint: ["node", "/opt/demo/bootstrap-n8n.mjs"]
+    build: { context: ., dockerfile: Dockerfile.n8n }
+    entrypoint: ['node', '/opt/demo/bootstrap-n8n.mjs']
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
@@ -73,18 +89,24 @@ services:
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
       INTERNAL_SECRET: ${INTERNAL_SECRET}
       ERP_SECRET: ${ERP_SECRET}
-      N8N_DIAGNOSTICS_ENABLED: "false"
-      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
-    volumes: ["n8n_data:/home/node/.n8n"]
+      N8N_DIAGNOSTICS_ENABLED: 'false'
+      N8N_VERSION_NOTIFICATIONS_ENABLED: 'false'
+    volumes: ['n8n_data:/home/node/.n8n']
     depends_on:
-      postgres: {condition: service_healthy}
+      postgres: { condition: service_healthy }
   n8n:
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz/readiness').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:5678/healthz/readiness').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 5s
       timeout: 3s
       retries: 30
-    build: {context: ., dockerfile: Dockerfile.n8n}
+    build: { context: ., dockerfile: Dockerfile.n8n }
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
@@ -94,23 +116,23 @@ services:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       N8N_HOST: localhost
       N8N_WEBHOOK_URL: http://localhost:5678/
-      N8N_UNVERIFIED_PACKAGES_ENABLED: "false"
-      N8N_SECURE_COOKIE: "false"
-      N8N_DIAGNOSTICS_ENABLED: "false"
-      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
-      N8N_CONCURRENCY_PRODUCTION_LIMIT: "2"
-      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
-      EXECUTIONS_DATA_MAX_AGE: "24"
-      EXECUTIONS_DATA_PRUNE: "true"
-    ports: ["127.0.0.1:5678:5678"]
-    volumes: ["n8n_data:/home/node/.n8n"]
+      N8N_UNVERIFIED_PACKAGES_ENABLED: 'false'
+      N8N_SECURE_COOKIE: 'false'
+      N8N_DIAGNOSTICS_ENABLED: 'false'
+      N8N_VERSION_NOTIFICATIONS_ENABLED: 'false'
+      N8N_CONCURRENCY_PRODUCTION_LIMIT: '2'
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: 'true'
+      EXECUTIONS_DATA_MAX_AGE: '24'
+      EXECUTIONS_DATA_PRUNE: 'true'
+    ports: ['127.0.0.1:5678:5678']
+    volumes: ['n8n_data:/home/node/.n8n']
     depends_on:
-      n8n-init: {condition: service_completed_successfully}
+      n8n-init: { condition: service_completed_successfully }
   web:
-    build: {context: ., target: web}
-    ports: ["127.0.0.1:4200:80"]
+    build: { context: ., target: web }
+    ports: ['127.0.0.1:4200:80']
     depends_on:
-      ingress-api: {condition: service_healthy}
+      ingress-api: { condition: service_healthy }
 volumes:
   postgres_data:
   n8n_data:

@@ -8,10 +8,7 @@
       "name": "Error de integración",
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
-      "position": [
-        0,
-        0
-      ],
+      "position": [0, 0],
       "parameters": {}
     },
     {
@@ -19,10 +16,7 @@
       "name": "Resolver operación",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        260,
-        0
-      ],
+      "position": [260, 0],
       "parameters": {
         "method": "GET",
         "url": "=http://ingress-api:3001/internal/operations/by-execution/{{ $json.execution?.id || 'unknown' }}",
@@ -56,10 +50,7 @@
       "name": "Operación identificada",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        520,
-        0
-      ],
+      "position": [520, 0],
       "parameters": {
         "conditions": {
           "options": {
@@ -90,10 +81,7 @@
       "name": "Solicitar recuperación",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        780,
-        -100
-      ],
+      "position": [780, -100],
       "parameters": {
         "method": "POST",
         "url": "=http://ingress-api:3001/internal/operations/{{ $json.body.operationId }}/report-failure",
