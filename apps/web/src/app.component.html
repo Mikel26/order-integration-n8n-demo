@@ -1,0 +1,244 @@
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Orderflow inicio"
+      ><span class="brand-mark">o<span>↗</span></span
+      >orderflow<span class="brand-separator">/</span
+      ><span class="brand-caption">integration lab</span></a
+    ><span class="portfolio-label">PORTAFOLIO · MIKEL ORTEGA</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div>
+        <div class="eyebrow"><span class="live-dot"></span> DEMO INTERACTIVA</div>
+        <h1>Un pedido. Todo el recorrido.</h1>
+        <p>
+          Del navegador al ERP, con n8n conectando cada paso.<br />Prueba la integración y observa
+          qué sucede con el stock.
+        </p>
+      </div>
+      <div class="session-card">
+        <span class="small-label">TU ENTORNO AISLADO</span
+        ><strong>{{
+          session() ? 'Sesión ' + session()!.sessionId.slice(0, 8) : 'Conectando…'
+        }}</strong
+        ><span>Datos ficticios · stock solo para ti</span
+        ><button class="text-button" (click)="reset()" [disabled]="busy()">Reiniciar demo ↻</button>
+      </div>
+    </section>
+    <nav class="pipeline" aria-label="Recorrido de integración">
+      <span><b>01</b> Angular</span><i>→</i><span><b>02</b> API de entrada</span><i>→</i
+      ><span class="pipeline-highlight"><b>03</b> n8n</span><i>→</i
+      ><span><b>04</b> ERP simulado</span><i>→</i><span><b>05</b> PostgreSQL</span>
+    </nav>
+    @if (error()) {
+      <div class="notice error" role="alert">
+        {{ error() }}
+        @if (!session()) {
+          <button (click)="init()">Volver a conectar</button>
+        }
+      </div>
+    }
+    @if (note()) {
+      <div class="notice" role="status">{{ note() }}</div>
+    }
+    <div class="workspace">
+      <section class="panel composer">
+        <div class="panel-heading">
+          <div>
+            <span class="small-label">ORIGEN DEL PEDIDO</span>
+            <h2>Prepara un envío</h2>
+          </div>
+          <span class="tag">WEB → ERP</span>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="product-heading">
+            <span>PRODUCTO</span><span>DISPONIBLE</span><span>CANTIDAD</span>
+          </div>
+          @for (p of products; track p.sku; let i = $index) {
+            <div class="product-row">
+              <div class="product-info">
+                <span class="product-icon">{{ i === 0 ? '⌨' : i === 1 ? '◉' : '♫' }}</span>
+                <div>
+                  <strong>{{ p.name }}</strong
+                  ><small>{{ p.sku }}</small>
+                </div>
+              </div>
+              <span class="stock-number">{{ quantity(p.sku) }}</span
+              ><input
+                type="number"
+                min="0"
+                max="10"
+                step="1"
+                [formControlName]="i === 0 ? 'keyboard' : i === 1 ? 'mouse' : 'headphones'"
+                [attr.aria-label]="'Cantidad de ' + p.name"
+              />
+            </div>
+          }
+          <button class="primary" type="submit" [disabled]="busy() || !session() || !!pending()">
+            {{ sending() ? 'Enviando…' : 'Enviar pedido' }} <span>↗</span>
+          </button>
+        </form>
+        @if (pending()) {
+          <button class="resend" (click)="resend()" [disabled]="busy()">
+            Comprobar o reenviar la misma solicitud
+          </button>
+        }
+        <div class="scenario-area">
+          <span class="small-label">O PRUEBA UN ESCENARIO</span>
+          <div class="scenario-buttons">
+            <button (click)="scenario('valid')" [disabled]="busy() || !session() || !!pending()">
+              <span class="scenario-dot success"></span>Pedido válido</button
+            ><button (click)="scenario('stock')" [disabled]="busy() || !session() || !!pending()">
+              <span class="scenario-dot warning"></span>Stock insuficiente</button
+            ><button
+              (click)="scenario('duplicate')"
+              [disabled]="busy() || !lastConfirmed() || !!pending()"
+            >
+              <span class="scenario-dot purple"></span>Duplicar último pedido
+            </button>
+          </div>
+          <p>El duplicado reutiliza el pedido con una clave de envío nueva.</p>
+        </div>
+      </section>
+      <section class="panel tracking" aria-live="polite">
+        <div class="panel-heading">
+          <div>
+            <span class="small-label">SEGUIMIENTO EN VIVO</span>
+            <h2>Estado de la operación</h2>
+          </div>
+          <span class="tracking-symbol">◎</span>
+        </div>
+        @if (operation(); as op) {
+          <div class="operation-summary">
+            <span class="status" [attr.data-status]="op.status">{{ labels[op.status] }}</span
+            ><code>{{ op.operationId.slice(0, 8) }}</code>
+          </div>
+          <h3 class="order-reference">{{ op.clientOrderId }}</h3>
+          <p class="result-message">{{ resultMessage(op) }}</p>
+          <ol class="timeline">
+            @for (event of op.events; track event.sequence) {
+              <li>
+                <span class="timeline-node"></span>
+                <div>
+                  <strong>{{ labels[event.status] }}</strong
+                  ><small>{{ event.at | date: 'HH:mm:ss' }}</small>
+                </div>
+              </li>
+            }
+          </ol>
+          <div class="tracking-meta">
+            <span>Intentos: {{ op.attemptCount }} / 3</span
+            ><span>Estado persistido en PostgreSQL</span>
+          </div>
+          @if (op.result?.originalOperationId) {
+            <button class="text-button" (click)="select(op.result!.originalOperationId!)">
+              Consultar operación original ↗
+            </button>
+          }
+        } @else {
+          <div class="empty-tracking">
+            <span class="empty-symbol">⇄</span>
+            <h3>Listo para recibir un pedido</h3>
+            <p>
+              Envía uno desde el formulario o elige un escenario.<br />Aquí verás los estados reales
+              de la integración.
+            </p>
+            <div class="empty-steps">
+              <span>Recibido</span><i>···</i><span>Procesando</span><i>···</i><span>Resultado</span>
+            </div>
+          </div>
+        }
+      </section>
+    </div>
+    <section class="panel activity">
+      <div class="panel-heading">
+        <div>
+          <span class="small-label">TRAZABILIDAD DE TU SESIÓN</span>
+          <h2>Actividad de pedidos</h2>
+        </div>
+        <span class="count-tag">{{ orders().length }} confirmados</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PEDIDO EXTERNO</th>
+              <th>OPERACIÓN</th>
+              <th>ESTADO</th>
+              <th>ACTUALIZADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (op of operations(); track op.operationId) {
+              <tr (click)="select(op.operationId)">
+                <td>
+                  <button
+                    class="table-link"
+                    (click)="select(op.operationId); $event.stopPropagation()"
+                  >
+                    {{ op.clientOrderId }}
+                  </button>
+                </td>
+                <td>
+                  <code>{{ op.operationId.slice(0, 8) }}</code>
+                </td>
+                <td>
+                  <span class="status" [attr.data-status]="op.status">{{ labels[op.status] }}</span>
+                </td>
+                <td>{{ op.updatedAt | date: 'HH:mm:ss' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty-table">
+                  Todavía no hay operaciones. Tu primer envío aparecerá aquí.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="panel confirmed">
+      <div class="panel-heading">
+        <div>
+          <span class="small-label">REGISTROS DEL ERP</span>
+          <h2>Pedidos confirmados</h2>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PEDIDO</th>
+              <th>PRODUCTOS Y CANTIDADES</th>
+              <th>REGISTRADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.orderId) {
+              <tr>
+                <td>{{ order.clientOrderId }}</td>
+                <td>
+                  @for (item of order.items; track item.sku) {
+                    <span class="order-line">{{ item.sku }} × {{ item.quantity }}</span>
+                  }
+                </td>
+                <td>{{ order.createdAt | date: 'HH:mm:ss' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty-table">
+                  Un rechazo o un duplicado no crea un nuevo pedido.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <footer>
+      <span>Construido por <strong>Mikel Ortega</strong> · Fullstack Senior</span
+      ><span>Angular / TypeScript / n8n / PostgreSQL</span>
+    </footer>
+  </main>
+</div>

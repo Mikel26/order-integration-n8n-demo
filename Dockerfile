@@ -15,3 +15,8 @@ COPY database/migrations ./database/migrations
 USER node
 CMD ["node", "dist/server/apps/ingress-api/src/main.js"]
 
+FROM build AS web-build
+RUN npm run build:web
+FROM nginx:1.28.0-alpine AS web
+COPY --from=web-build /app/dist/web/browser /usr/share/nginx/html
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
