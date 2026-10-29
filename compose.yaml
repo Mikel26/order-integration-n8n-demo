@@ -1,0 +1,18 @@
+name: order-integration-demo
+services:
+  postgres:
+    build: ./database
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup:env}
+      DEMO_DB_PASSWORD: ${DEMO_DB_PASSWORD:?Run npm run setup:env}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?Run npm run setup:env}
+    ports: ["127.0.0.1:5433:5432"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  postgres_data:
