@@ -1,6 +1,6 @@
 # Orderflow · integración de pedidos con n8n
 
-Demo de portafolio de **Mikel Ortega**, Ingeniero en Sistemas y Fullstack Senior. Una pantalla Angular envía pedidos ficticios a una integración asíncrona con **n8n, Node.js/TypeScript y PostgreSQL**. El ERP es simulado; las transacciones, el stock, los estados y la recuperación son reales.
+Integración asíncrona de pedidos con **Angular, n8n, Node.js/TypeScript y PostgreSQL**. El flujo conecta una interfaz web con un ERP simulado e incluye seguimiento de estados, control transaccional de stock, deduplicación y recuperación ante fallos.
 
 ![Demo de pedidos en escritorio](docs/screenshots/demo-desktop.png)
 
