@@ -6,7 +6,7 @@ El despliegue completo requiere una cuenta Oracle ya verificada y una VM disponi
 
 ## 1. Vercel Hobby
 
-Importar `Mikel26/order-integration-n8n-demo` en el espacio personal autorizado. Mantener la raíz del repositorio (`.`), porque Angular comparte contratos fuera de `apps/web`.
+Importar `Mikel26/order-integration-n8n-demo` en el espacio personal autorizado. Si la integración GitHub todavía no tiene acceso al repositorio, se puede hacer una primera publicación directa del código; la actualización automática por push requiere autorizar después ese repositorio en la integración GitHub de Vercel. Mantener la raíz del repositorio (`.`), porque Angular comparte contratos fuera de `apps/web`.
 
 | Ajuste    | Valor               |
 | --------- | ------------------- |
