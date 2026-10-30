@@ -16,7 +16,8 @@
     "apps/mock-erp/**/*.ts",
     "packages/**/*.ts",
     "scripts/**/*.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "api/**/*.ts"
   ],
   "exclude": ["tests/e2e"]
 }

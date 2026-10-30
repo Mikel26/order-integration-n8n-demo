@@ -736,3 +736,9 @@ footer strong {
     font-size: 9px;
   }
 }
+
+.notice a {
+  color: inherit;
+  font-weight: 600;
+  margin-left: 8px;
+}

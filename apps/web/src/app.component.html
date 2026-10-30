@@ -35,6 +35,12 @@
     @if (error()) {
       <div class="notice error" role="alert">
         {{ error() }}
+        <a
+          href="https://github.com/Mikel26/order-integration-n8n-demo/blob/main/docs/demo.webm"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Ver video de demostración ↗</a
+        >
         @if (!session()) {
           <button (click)="init()">Volver a conectar</button>
         }
