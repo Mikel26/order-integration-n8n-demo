@@ -20,3 +20,5 @@ Los diagramas de workflows documentan los JSON importables. Una captura adiciona
 - Backend con Compose independiente, HTTPS automático y servicios privados, validado localmente.
 - Cuenta y VM Oracle Always Free pendientes del registro del titular; no se han creado recursos en la nube ni contratado servicios.
 - Guía operativa: [LIVE-DEMO.md](LIVE-DEMO.md).
+
+Frontend publicado y verificado: [https://order-integration-n8n-demo.vercel.app](https://order-integration-n8n-demo.vercel.app), en estado de preparación hasta conectar Oracle. Publicación inicial directa; integración GitHub de Vercel pendiente.

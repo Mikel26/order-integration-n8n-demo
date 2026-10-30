@@ -12,7 +12,7 @@ Integración asíncrona de pedidos con **Angular, n8n, Node.js/TypeScript y Post
 - Recuperación si el ERP confirma un pedido pero se pierde su respuesta.
 - Sesiones anónimas con stock privado, polling y estados persistidos.
 
-**Estado:** MVP local implementado y código publicado en [GitHub](https://github.com/Mikel26/order-integration-n8n-demo). La live demo aún no tiene una URL pública. No se atribuyen clientes, uso productivo o métricas comerciales. Consulta las ejecuciones y resultados del pipeline en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml).
+**Estado:** frontend publicado en [Vercel](https://order-integration-n8n-demo.vercel.app), actualmente en preparación. La integración en vivo está pendiente de conectar el backend de Oracle Cloud Always Free. Código publicado en [GitHub](https://github.com/Mikel26/order-integration-n8n-demo). No se atribuyen clientes, uso productivo o métricas comerciales. Consulta las ejecuciones y resultados del pipeline en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml).
 
 [Video de demostración](docs/demo.webm) · [Captura móvil](docs/screenshots/demo-mobile.png) · [Arquitectura](docs/architecture.md) · [Workflows](docs/workflow.md) · [Especificación original](docs/ESPECIFICACION.md)
 

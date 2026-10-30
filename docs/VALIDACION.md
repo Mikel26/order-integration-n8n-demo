@@ -49,3 +49,10 @@ No hay ensayo de alta disponibilidad, carga de producción ni SLA medido. La aud
 - HTTPS local con certificado de una CA de prueba: recorrido A/B/C mediante n8n real correcto, stock `3/2/2`.
 - La ruta `/internal/operations/test` devolvió HTTP 404 desde el proxy público.
 - Esta validación no equivale a un despliegue en Oracle: siguen pendientes la cuenta, la VM gratuita y su DNS público.
+
+### Verificación pública de Vercel
+
+- URL canónica: [https://order-integration-n8n-demo.vercel.app](https://order-integration-n8n-demo.vercel.app).
+- HTTP 200 sin sesión de Vercel; API de sesiones HTTP 503 con código `DEMO_OFFLINE` por backend aún no configurado.
+- Navegador aislado: mensaje de preparación, estilos correctos, envío deshabilitado y cero errores JavaScript.
+- El proxy también pasó A/B/C contra el backend HTTPS local mediante n8n real. Esto valida el transporte y las cookies; no sustituye la verificación posterior de la VM Oracle.

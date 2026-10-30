@@ -4,6 +4,10 @@ Topología elegida: Angular y un proxy mínimo en Vercel Hobby; APIs, worker, n8
 
 El despliegue completo requiere una cuenta Oracle ya verificada y una VM disponible. Publicar el frontend antes deja una web accesible con un mensaje de preparación; no la convierte en una integración operativa. El video de GitHub sigue disponible como respaldo.
 
+## Estado actual
+
+Web pública: [https://order-integration-n8n-demo.vercel.app](https://order-integration-n8n-demo.vercel.app). Verificada sin autenticación: HTTP 200, API `503 DEMO_OFFLINE`, mensaje de preparación visible y ningún error JavaScript. El backend Oracle sigue pendiente del registro del titular. La primera publicación fue directa; la actualización automática por GitHub requiere autorizar la integración para este repositorio.
+
 ## 1. Vercel Hobby
 
 Importar `Mikel26/order-integration-n8n-demo` en el espacio personal autorizado. Si la integración GitHub todavía no tiene acceso al repositorio, se puede hacer una primera publicación directa del código; la actualización automática por push requiere autorizar después ese repositorio en la integración GitHub de Vercel. Mantener la raíz del repositorio (`.`), porque Angular comparte contratos fuera de `apps/web`.
@@ -26,7 +30,7 @@ DEMO_BACKEND_ORIGIN=https://NOMBRE-REAL-DEL-BACKEND.duckdns.org
 
 Usar el origen sin rutas, parámetros ni credenciales. Después redeplegar. Las vistas previas no se conectan automáticamente a producción: el backend comprueba el Origin exacto. No copiar `.env` ni `.env.live` a Vercel; su única variable necesaria es la URL del backend.
 
-La URL canónica de producción `https://PROYECTO.vercel.app` es el `PUBLIC_ORIGIN` del backend. No usar una URL temporal de commit que cambie al desplegar.
+La URL canónica de producción `https://order-integration-n8n-demo.vercel.app` es el `PUBLIC_ORIGIN` del backend. No usar una URL temporal de commit que cambie al desplegar.
 
 ## 2. Cuenta e instancia Oracle Always Free
 
@@ -51,7 +55,7 @@ Crear un nombre gratuito en [DuckDNS](https://www.duckdns.org/) y apuntarlo a la
 En un equipo con Node 24, generar una configuración nueva con los valores reales:
 
 ```sh
-npm run setup:live --   --frontend https://PROYECTO.vercel.app   --api-host NOMBRE-REAL-DEL-BACKEND.duckdns.org
+npm run setup:live --   --frontend https://order-integration-n8n-demo.vercel.app   --api-host NOMBRE-REAL-DEL-BACKEND.duckdns.org
 ```
 
 El comando crea `.env.live` con permisos `0600`, secretos aleatorios y el origen HTTPS. Si ya existe, se detiene para no rotar contraseñas accidentalmente. El archivo está ignorado por Git y Vercel. Transferirlo mediante SCP/SSH a la raíz del repositorio en la VM, conservarlo como `0600` y guardar una copia privada de recuperación.
@@ -91,7 +95,7 @@ Configurar el propietario local del editor y mantenerlo fuera del acceso públic
 4. Ejecutar, con Node 24, el smoke público:
 
 ```sh
-DEMO_API_URL=https://PROYECTO.vercel.app PUBLIC_ORIGIN=https://PROYECTO.vercel.app npm run test:smoke
+DEMO_API_URL=https://order-integration-n8n-demo.vercel.app PUBLIC_ORIGIN=https://order-integration-n8n-demo.vercel.app npm run test:smoke
 ```
 
 5. Verificar la denegación de `/internal/*` en el backend y probar otra sesión de navegador para comprobar su stock privado. No detener el ERP de una demo compartida para ejecutar pruebas destructivas.
