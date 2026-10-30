@@ -1,0 +1,27 @@
+{
+  admin off
+}
+
+{$API_HOSTNAME} {
+  request_body {
+    max_size 8KB
+  }
+  header {
+    X-Content-Type-Options nosniff
+    Referrer-Policy no-referrer
+    Cache-Control no-store
+  }
+  @public path /api/* /health
+  handle @public {
+    reverse_proxy ingress-api:3000 {
+      header_up X-Forwarded-For {remote_host}
+      transport http {
+        dial_timeout 3s
+        response_header_timeout 10s
+      }
+    }
+  }
+  handle {
+    respond 404
+  }
+}

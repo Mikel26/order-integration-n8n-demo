@@ -25,7 +25,8 @@
     "test:smoke": "node scripts/smoke-live.mjs",
     "test:recovery": "node scripts/test-recovery.mjs",
     "record:demo": "node scripts/record-demo.mjs",
-    "check:secrets": "node scripts/check-secrets.mjs"
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "setup:live": "node scripts/setup-live-env.mjs"
   },
   "dependencies": {
     "@angular/common": "21.2.25",

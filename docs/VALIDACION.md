@@ -40,3 +40,12 @@ Imágenes de referencia: Node `24.12.0-alpine`, PostgreSQL `17.6-alpine`, n8n `2
 ## Límites de esta evidencia
 
 No hay ensayo de alta disponibilidad, carga de producción ni SLA medido. La auditoría npm no evalúa el sistema operativo de las imágenes. La autenticación del editor n8n no forma parte de los recorridos automatizados; el editor está ligado a localhost. Esta evidencia corresponde a la validación local anterior a la publicación del código. La live demo pública sigue pendiente; las ejecuciones remotas posteriores pueden consultarse en [GitHub Actions](https://github.com/Mikel26/order-integration-n8n-demo/actions/workflows/ci.yml). No se afirma experiencia productiva con un ERP comercial.
+
+## Preparación del despliegue — 30 de octubre de 2026
+
+- TypeScript y build Angular correctos.
+- 20 pruebas unitarias correctas: incluyen el proxy público y la creación segura de configuración privada.
+- `deploy/compose.live.yaml` arrancó con volúmenes nuevos en un proyecto local separado.
+- HTTPS local con certificado de una CA de prueba: recorrido A/B/C mediante n8n real correcto, stock `3/2/2`.
+- La ruta `/internal/operations/test` devolvió HTTP 404 desde el proxy público.
+- Esta validación no equivale a un despliegue en Oracle: siguen pendientes la cuenta, la VM gratuita y su DNS público.

@@ -77,6 +77,10 @@ npm run test:e2e
 
 Las E2E abren navegadores de pruebas aislados y generan capturas. Si ya tienes Chrome instalado puedes usar `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`; para grabar videos también debe estar instalado `npx playwright install ffmpeg`. Las cuotas de creación de sesiones se aplican en las pruebas en vivo; no ejecutarlas repetidamente contra una demo compartida. Ver [resultados y límites](docs/VALIDACION.md).
 
+## Preparar la live demo
+
+La ruta de publicación a $0 usa Vercel Hobby para Angular y una VM Oracle Cloud Always Free para los servicios. Consulta la [guía de despliegue](docs/LIVE-DEMO.md), con configuración HTTPS, secretos, validación y reversión. El frontend puede publicarse primero en estado de preparación; la integración en vivo requiere el backend activo y comprobado.
+
 ## Desarrollo con recarga
 
 Arranca primero la infraestructura con Compose. Para trabajar con las APIs en el host:
